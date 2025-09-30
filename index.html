@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echo News</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+    <link rel="shortcut icon" href="images/logo/echo_favicon.svg" type="image/x-icon">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/style.css">
+
+
+    <script src="js/bootstrap.bundle.js" defer></script>
+    <script src="js/app.functions.js" defer></script>
+    <script src="js/app.js" defer></script>
+
+    <script>
+        let preferredTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+            ? "dark"
+            : "light";
+        preferredTheme = localStorage.getItem("preferredTheme") || preferredTheme;
+        document.documentElement.setAttribute("data-bs-theme", preferredTheme);
+    </script>
+</head>
+
+<body>
+    <nav class="navbar sticky-top" style="grid-area: navbar;">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <img src="images/logo/echo_logo_white.svg" alt="echo logo" class="invert-logo" height="40">
+            </a>
+            <div class="d-flex justify-content-center align-items-center gap-2">
+                <button id="themeToggle" class="theme-toggler"></button>
+                <button id="sidebarToggle" class="sidebar-toggler btn btn-primary" onclick="toggleShow('#sidebar')">
+                    <i class="bi bi-funnel-fill"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <aside id="sidebar" class="h-100" style="grid-area: sidebar;">
+        <div class="aside-content me-3 ms-3 ms-md-0 d-flex flex-column row-gap-3">
+            <section id="filters">
+                <div class="container-fluid rounded-3 py-3">
+                    <h3>Filters</h3>
+                    <div id="newsFilter">
+                        <label class="ms-1" for="endpoint">Endpoint</label>
+                        <div class="input-group mb-3">
+                            <select class="form-select" id="endpoint" autocomplete="off">
+                                <option value="" selected>Select endpoint</option>
+                                <option value="everything">Everything</option>
+                                <option value="top-headlines">Top headlines</option>
+                            </select>
+                            <span class="input-group-text"
+                                title="An endpoint, in NewsAPI, specifies what kind of data you're searching for">
+                                <i class="bi bi-info-circle"></i>
+                            </span>
+                        </div>
+
+                        <form id="everythingForm" style="display: none;">
+                            <input type="hidden" name="endpoint" value="everything">
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="everythingLanguage">language</label>
+                                <select class="form-select" name="language" id="everythingLanguage" autocomplete="off">
+                                    <option value="" selected>Any</option>
+                                    <option value="ar">Arabic</option>
+                                    <option value="de">German</option>
+                                    <option value="en">English</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                    <option value="he">Hebrew</option>
+                                    <option value="it">Italian</option>
+                                    <option value="nl">Dutch</option>
+                                    <option value="no">Norwegian</option>
+                                    <option value="pt">Portuguese</option>
+                                    <option value="ru">Russian</option>
+                                    <option value="sv">Swedish</option>
+                                    <option value="zh">Chinese</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="everythingKeywords">
+                                    <i class="bi bi-search"></i>
+                                </label>
+                                <input type="text" class="form-control" id="everythingKeywords" name="q"
+                                    placeholder="keywords" autocomplete="off">
+                            </div>
+
+                            <label class="ms-1" for="everythingDatetimeFrom">From</label>
+                            <div class="input-group mb-3">
+                                <input type="datetime-local" class="form-control" name="from"
+                                    id="everythingDatetimeFrom" autocomplete="off">
+                            </div>
+
+                            <label class="ms-1" for="everythingDatetimeTo">To</label>
+                            <div class="input-group mb-3">
+                                <input type="datetime-local" class="form-control" name="to" id="everythingDatetimeTo"
+                                    autocomplete="off">
+                            </div>
+
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="everythingSortBy">Sort by</label>
+                                <select class="form-select" name="sortBy" id="everythingSortBy" autocomplete="off">
+                                    <option value="publishedAt" selected>Newest</option>
+                                    <option value="popularity">Popularity</option>
+                                    <option value="relevancy">Relevance</option>
+                                </select>
+                            </div>
+                            <button class="btn btn-primary w-100" type="submit">Filter</button>
+                        </form>
+
+                        <form id="topHeadlinesForm" style="display: none;">
+                            <input type="hidden" name="endpoint" value="top-headlines">
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="topHeadlinesCategory">Category</label>
+                                <select class="form-select" name="category" id="topHeadlinesCategory"
+                                    autocomplete="off">
+                                    <option value="" selected>Any</option>
+                                    <option value="business">Business</option>
+                                    <option value="entertainment">Entertainment</option>
+                                    <option value="general">General</option>
+                                    <option value="health">Health</option>
+                                    <option value="science">Science</option>
+                                    <option value="sports">Sports</option>
+                                    <option value="technology">Technology</option>
+                                </select>
+                            </div>
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="topHeadlinesCountry">Country</label>
+                                <select class="form-select" name="country" autocomplete="off" id="topHeadlinesCountry">
+                                    <option value="" selected>Any</option>
+                                    <option value="us">Us</option>
+                                </select>
+                                <span class="input-group-text" title="Unfortunately, NewsAPI provides only one country">
+                                    <i class="bi bi-info-circle"></i>
+                                </span>
+                            </div>
+                            <div class="input-group mb-3">
+                                <label class="input-group-text" for="topHeadlinesKeywords">
+                                    <i class="bi bi-search"></i>
+                                </label>
+                                <input type="text" class="form-control" name="q" id="topHeadlinesKeywords"
+                                    placeholder="keywords" autocomplete="off">
+                            </div>
+                            <button class="btn btn-primary w-100" type="submit">Filter</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </aside>
+
+    <section id="hero" class="ms-3 me-3 me-lg-0" style="grid-area: hero;">
+        <div class="container-fluid p-3 rounded-3">
+            <h2>Top Headlines</h2>
+            <div id="carouselExampleInterval" class="carousel slide rounded-3 overflow-hidden" data-bs-ride="carousel">
+                <div class="carousel-indicators">
+                    <button type="button" data-bs-target="#carouselExampleInterval" data-bs-slide-to="0" class="active"
+                        aria-current="true" aria-label="Slide 1"></button>
+                    <button type="button" data-bs-target="#carouselExampleInterval" data-bs-slide-to="1"
+                        aria-label="Slide 2"></button>
+                    <button type="button" data-bs-target="#carouselExampleInterval" data-bs-slide-to="2"
+                        aria-label="Slide 3"></button>
+                </div>
+                <div class="carousel-inner">
+                    <div class="carousel-item active" data-bs-interval="5000">
+                        <img src="https://picsum.photos/4000/3000?random1" class="background-image darken" alt="">
+                    </div>
+                    <div class="carousel-item" data-bs-interval="5000">
+                        <img src="https://picsum.photos/4000/3000?random2" class="background-image darken" alt="">
+                    </div>
+                    <div class="carousel-item" data-bs-interval="5000">
+                        <img src="https://picsum.photos/4000/3000?random3" class="background-image darken" alt="">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleInterval"
+                    data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleInterval"
+                    data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <main class="ms-3 me-3 me-md-0 d-flex flex-column row-gap-3" style="grid-area: main;">
+        <section id="latestNews">
+            <div class="container-fluid p-3 rounded-3 d-flex flex-column row-gap-3">
+                <h2 class="ms-3" id="newsCardsContainerTitle">Latest News</h2>
+                <div id="newsCardsContainer"
+                    class="row row-cols-1 row-cols-sm-2 row-cols-md-1 row-cols-lg-2 row-cols-xl-3 g-0 gx-3 row-gap-3">
+                    <!-- elements will be inserted via JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer style="grid-area: footer;">
+        <div class="d-flex justify-content-center align-items-center">
+            <h6 class="my-3 text-center lh-base">
+                This project can only run locally due to NewsAPI limitations.
+                Please, visit this <a href="https://github.com/Kiwi64bit/echoNews" target="_blank">repo</a> to clone the
+                project.
+            </h6>
+        </div>
+    </footer>
+</body>
+
+</html>
