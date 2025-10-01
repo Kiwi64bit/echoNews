@@ -1,2 +1,2 @@
-# kiwiNews
-Kiwi News is a demo project website using the news API
+# EchoNews
+A demo website project using NewsAPI
