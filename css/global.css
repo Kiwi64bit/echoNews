@@ -119,6 +119,7 @@ nav {
 
 /* Aside */
 aside {
+    --offset: calc(40px + 2 * 0.3125rem + 2 * 0.5rem + 1rem);
     position: fixed;
     top: 0;
     right: calc(-1 * var(--sidebar-width) - 1rem);
@@ -132,10 +133,9 @@ aside.show {
 }
 
 aside .aside-content {
-    --offset: calc(40px + 2 * 0.3125rem + 2 * 0.5rem + 1rem);
     position: sticky;
     top: var(--offset);
-    height: calc(100vh - var(--offset) - 1rem);
+    height: calc(100% - var(--offset) - 1rem);
     overflow-y: auto;
     scrollbar-width: none;
 }
