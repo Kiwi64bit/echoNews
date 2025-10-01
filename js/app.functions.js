@@ -32,19 +32,21 @@ function timeSince(publishedAt) {
 }
 
 function createNewsCard({ source, author, title, description, url, urlToImage, publishedAt, content }) {
+    const fallbackImage = "https://placehold.co/400x300?text=Image+Unavailable";
     const newsCard = document.createElement("div");
-    newsCard.classList.add(..."news-card p-3 rounded-3".split(" "));
+    newsCard.classList.add(..."news-card p-3 rounded-3 w-100".split(" "));
     newsCard.innerHTML += `
         <div class="news-image rounded-3 overflow-hidden">
             <a target="_blank" href="${url}" class="custom-image-link">
-                <img src="${urlToImage ?? "https://placehold.co/400x300?text=Image+Unavailable"}" alt="" class="img-fluid">
+                <img src="${urlToImage ?? fallbackImage}" onerror="this.src='${fallbackImage}'"
+                alt="" class="img-fluid">
             </a>
         </div>
         <div class="news-text flex-grow-1 p-2 d-flex flex-column">
             <a target="_blank" href="${url}" class="custom-text-link">
                 <h6 class="fw-bold mb-2">${title}</h6>
             </a>
-            <p class="mb-3">by ${author ?? "an unknown author"}</p>
+            <p class="mb-3 text-truncate">by ${author ?? "an unknown author"}</p>
             <a target="_blank" href="${url}" class="custom-text-link flex-grow-1">
                 <p class="fw-thin">
                     ${description ?? "no description"}
@@ -60,12 +62,11 @@ function createNewsCard({ source, author, title, description, url, urlToImage, p
     return newsCard;
 }
 
-function renderArticles(containerSelector, articles = []) {
-    const container = document.querySelector(containerSelector);
-    container.innerHTML = "";
+function renderArticles(containerElement, articles = []) {
+    containerElement.innerHTML = "";
 
     if (!articles.length) {
-        container.innerHTML = `<h2 class="w-100 text-center">No results found.</h2>`;
+        containerElement.innerHTML = `<h2 class="w-100 text-center">No results found.</h2>`;
         return;
     }
 
@@ -74,7 +75,38 @@ function renderArticles(containerSelector, articles = []) {
         const wrapper = document.createElement("div");
         wrapper.classList.add("col");
         wrapper.appendChild(newsCard);
-        container.appendChild(wrapper);
+        containerElement.appendChild(wrapper);
+    }
+}
+
+function updateCarousel(carouselSelector, data) {
+    const fallbackImage = "https://placehold.co/400x300?text=Image+Unavailable";
+    const carousel = document.querySelector(carouselSelector);
+    const carouselItems = carousel.querySelectorAll(".carousel-inner .carousel-item");
+    carouselItems.forEach((element, index) => {
+        const carouselLink = element.querySelector("a.custom-text-link");
+        const carouselImage = element.querySelector("img");
+        const carouselTitle = element.querySelector(".title");
+        carouselLink.href = data[index].url;
+        carouselImage.src = data[index].urlToImage ?? fallbackImage;
+        carouselImage.onerror = () => (carouselImage.src = fallbackImage);
+        carouselTitle.textContent = data[index].title;
+    });
+}
+
+async function fetchAndRenderArticles(url, containerElement, title) {
+    const titleElement = document.querySelector("#newsCardsContainerTitle");
+    try {
+        const data = await fetchNews(url);
+        const articles = data.articles;
+        titleElement.textContent = title;
+        renderArticles(containerElement, articles);
+        return articles;
+    } catch (error) {
+        titleElement.textContent = "";
+        containerElement.innerHTML = `
+        <h2 class="w-100 text-center">Couldn't fetch data <br> error: ${error}</h2>`;
+        return [];
     }
 }
 

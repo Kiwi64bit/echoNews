@@ -1,27 +1,6 @@
 let cashedResults = [];
 
-const newsContainerTitle = document.getElementById("newsCardsContainerTitle");
-
-const categoryOptions = Array.from(document.querySelectorAll(`#topHeadlinesCategory option:not([value=""])`)).map(
-    element => element.value
-);
-const randomCategory = categoryOptions[Math.floor(Math.random() * categoryOptions.length)];
-
-newsContainerTitle.textContent = randomCategory.toLocaleUpperCase();
-fetchNews(buildNewsURL("top-headlines", { category: randomCategory }))
-    .then(data => {
-        cashedResults = data.articles;
-        renderArticles("#newsCardsContainer", cashedResults);
-    })
-    .catch(error => {
-        let errorMessage = error;
-        newsContainerTitle.textContent = "";
-        document.querySelector("#newsCardsContainer").innerHTML = `
-        <h2 class="w-100 text-center">Couldn't fetch data <br> error code: ${errorMessage}</h2>`;
-    });
-
 const themeToggleBtn = document.getElementById("themeToggle");
-
 themeToggleBtn.addEventListener("click", toggleTheme);
 
 const newsFilter = document.getElementById("newsFilter");
@@ -38,37 +17,43 @@ const endpointSelect = newsFilter.querySelector("#endpoint");
 const topHeadlinesForm = newsFilter.querySelector("#topHeadlinesForm");
 const everythingForm = newsFilter.querySelector("#everythingForm");
 
+const newsContainer = document.getElementById("newsCardsContainer");
+const newsContainerTitle = document.getElementById("newsCardsContainerTitle");
+
 endpointSelect.addEventListener("input", () => {
     const value = endpointSelect.value.trim();
     topHeadlinesForm.style.display = value === "top-headlines" ? "block" : "none";
     everythingForm.style.display = value === "everything" ? "block" : "none";
 });
 
-const debouncedFilter = debounce(async form => {
+const debouncedFilter = debounce(form => {
     const { endpoint, filters } = getFormData(form);
     const valid = validateData(endpoint, filters);
     if (!valid.isValid) {
         updateErrorPopover(filterPopover, valid.message);
         return;
     }
-
-    try {
-        const url = buildNewsURL(endpoint, filters);
-        const data = await fetchNews(url);
-        cashedResults = data.articles;
-        newsContainerTitle.textContent = "Filtered Results";
-        renderArticles("#newsCardsContainer", cashedResults);
-    } catch (error) {
-        let errorMessage = error;
-        newsContainerTitle.textContent = "";
-        document.querySelector("#newsCardsContainer").innerHTML = `
-        <h2 class="w-100 text-center">Couldn't fetch data <br> error code: ${errorMessage}</h2>`;
-    }
+    const url = buildNewsURL(endpoint, filters);
+    cashedResults = fetchAndRenderArticles(url, newsContainer, "Filterd Results");
 }, 200);
 
 [topHeadlinesForm, everythingForm].forEach(form => {
-    form.addEventListener("submit", async event => {
+    form.addEventListener("submit", event => {
         event.preventDefault();
         debouncedFilter(form);
     });
 });
+
+(async function reloadPage() {
+    const categoryOptions = document.querySelectorAll(`#topHeadlinesCategory option:not([value=""])`);
+    const categories = Array.from(categoryOptions).map(element => element.value);
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+    const data = await fetchNews(buildNewsURL("top-headlines", { category: randomCategory }));
+    cashedResults = data.articles;
+
+    const carouselHeadlines = cashedResults.slice(0, 3);
+    const bodyHeadlines = cashedResults.slice(3);
+    updateCarousel("#carouselExampleInterval", carouselHeadlines);
+    newsContainerTitle.innerHTML = randomCategory;
+    renderArticles(newsContainer, bodyHeadlines);
+})();

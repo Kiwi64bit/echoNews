@@ -2,14 +2,25 @@
     position: relative;
     aspect-ratio: 2 / 1;
     width: 100%;
-    background-repeat: no-repeat;
-    background-position: center;
-    background-size: cover;
+    align-items: center;
     z-index: 0;
 }
 
-section>*, footer{
+.carousel-item>.container-fluid {
+    background: linear-gradient(to top, rgb(0, 0, 0), transparent);
+}
+
+.carousel-item .title {
+    color: var(--bs-light);
+}
+
+section>*,
+footer {
     background-color: var(--bs-body-bg);
+}
+
+.title {
+    text-transform: capitalize;
 }
 
 .col:has(.news-card) {
